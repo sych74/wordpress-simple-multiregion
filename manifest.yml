@@ -1,12 +1,11 @@
 type: install
-jpsVersion: '1.7.2'
-name: Multi-Region WordPress Cluster v1 (BETA)
-id: wordpress-cluster-multiregions
+name: Multi-Region WordPress Simple v1
+id: wordpress-simple-multiregion
 categories:
   - apps/clusters
   - apps/content-management
 description: 
-  text: Highly-available and reliable WordPress cluster setup with automatic multi-region distribution. The package creates interconnected WordPress sub clusters across several regions ensuring the highest uptime and lowest latency.
+  text: Highly-available and reliable WordPress simple setup with automatic multi-region distribution. The package creates interconnected WordPress sub clusters across several regions ensuring the highest uptime and lowest latency.
   short: Enterprise-grade WordPress Cluster with automatic distribution across several regions.
 logo: https://raw.githubusercontent.com/jelastic-jps/wordpress-multiregions/master/images/82dark-back-01.svg
 baseUrl: https://raw.githubusercontent.com/jelastic-jps/wordpress-multiregions/master
@@ -15,68 +14,14 @@ onBeforeInit: /scripts/settings.js?_r=${fn.random}
 
 settings:
   fields:
-    - caption: Database Topology
-      type: list
-      name: db_async_topology
-      default: async
-      required: true
-      width: 443
-      tooltip:
-      tipParams: 
-        maxWidth: 610
-        dismissDelay: 600000
-        hideOnOver: false
-      values:        
-          - value: async
-            caption: Async Primary/Replica Distribution 
-            tooltip: <h2>Primary Replication with Extra Replicas</h2> 
-                     Pre-configured asynchronous replication with two interconnected<br> primary databases and one secondary replica.<br>
-                     This topology is recommended when <b>Latency</b> between regions is more than <b>20ms</b>.<br>
-                     <ul>
-                        <li>Primary node at Region 1 performs writes and reads operations<br>
-                        <li>Primary node at Region 2 by default performs reads operations but starts handling writes if initial primary database becomes unavailable<br>
-                        <li>Replica node at Region 3 is used for reads operations only<br>
-                     </ul>
-                       <img width='587' height='480' src='https://raw.githubusercontent.com/jelastic-jps/wordpress-multiregions/master/images/wp-geo-mm-white-1-bl.svg?sanitize=true'> 
-          - value: sync
-            caption: Sync Galera Distribution
-            tooltip: <h2>Galera Cluster</h2>
-                     All servers can accept updates even if being issued concurrently.<br>
-                     This topology is recommended when <b>Latency</b> between regions is less than <b>20ms</b><br>
-                     <ul>
-                        <li>Region 1 includes 3 primary database nodes<br>
-                        <li>Region 2 and 3 each includes 2 primary database nodes<br>
-                        <li>All Galera Cluster nodes perform reads and writes operation<br>
-                     </ul>
-                      <img width='580' height='400' src='https://raw.githubusercontent.com/jelastic-jps/wordpress-multiregions/master/images/wp-geo-galera-white-1-bl.svg?sanitize=true'>
-                      
-      showIf:
-        async:
-          - caption: Regions
-            type: regionlist
-            name: regions
-            disableInactive: true
-            selectFirstAvailable: false
-            multiSelect: true
-            min: 2
-            max: 5
-            filter:
-              isActive: true
-              type: ["vz7"]
-            tooltip: Select the destination regions. The first selected region will host the primary cluster, so this region should have the highest performance.
-        sync:
-          - caption: Regions
-            type: regionlist
-            name: regions
-            disableInactive: true
-            selectFirstAvailable: false
-            multiSelect: true
-            min: 3
-            max: 5
-            filter:
-              isActive: true
-              type: ["vz7"]
-            tooltip: Select the destination regions. The first selected region will host the primary cluster, so this region should have the highest performance.    
+    - caption: Regions
+      type: regionlist
+      name: regions
+      disableInactive: true
+      selectFirstAvailable: false
+      multiSelect: true
+      min: 2
+      max: 2
 
     - caption: Environment
       type: envname
@@ -85,26 +30,6 @@ settings:
       randomName: true
       showFullDomain: false
       required: true
-
-    - caption: Scaling Strategy
-      type: list
-      name: loadGrowth
-      default: slow
-      required: true
-      width: 225
-      tooltip: | 
-        Configure auto-scaling triggers, i.e. how fast the system responds to load spikes by adding or removing nodes.
-        <p>Read more about <a href="https://docs.jelastic.com/automatic-horizontal-scaling">Automatic Horizontal Scaling</a></p>
-      values:        
-          - value: slow
-            caption: Low Load
-            tooltip: <h2>Low load scaling strategy</h2>add 1 new node when CPU > 70% <p>remove when CPU < 20%</p>
-          - value: medium
-            caption: Medium Load
-            tooltip: <h3>Medium load scaling strategy</h3>add 1 new node when CPU > 50% <p>remove when CPU < 20%</p>
-          - value: fast
-            caption: High Load
-            tooltip: <h3>High load scaling strategy</h3>add 2 new nodes when CPU > 30% <p>remove when CPU < 10%</p>
 
     - caption: Advanced Features
       type: displayfield
@@ -149,7 +74,7 @@ settings:
     - type: displayfield
       hideLabel: true
       hidden: true
-      name: bl_count   
+      name: message   
       value: 1
       markup:
 mixins:
@@ -157,14 +82,10 @@ mixins:
 
 globals:
   wp_cluster_url: https://raw.githubusercontent.com/jelastic-jps/wordpress-cluster/v3.0.0
-  db_cluster_url: https://raw.githubusercontent.com/jelastic-jps/mysql-cluster/v2.4.0
-  galera_server_id: ${fn.random}
   db_user: jelastic-${fn.random}
   db_pass: ${fn.password(10)}
   repl_user: replica-${fn.random}
   repl_pass: ${fn.password(10)}
-  monitor_user: monitor-${fn.random}
-  monitor_pass: ${fn.password(10)}
   protocol: http
   wp_admin_pass: ${fn.password(10)}
   ls_admin_pass: ${fn.password(10)}
