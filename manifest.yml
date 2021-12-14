@@ -78,10 +78,11 @@ settings:
       value: 1
       markup:
 mixins:
- - https://raw.githubusercontent.com/jelastic-jps/wordpress-cluster/master/configs/vers.yaml
+ - https://raw.githubusercontent.com/jelastic-jps/wordpress/master/configs/vers.yaml
 
 globals:
-  wp_cluster_url: https://raw.githubusercontent.com/jelastic-jps/wordpress-cluster/v3.0.0
+  wp_standalone_url: https://raw.githubusercontent.com/sych74/wordpress/v3.0.0
+  
   db_user: jelastic-${fn.random}
   db_pass: ${fn.password(10)}
   repl_user: replica-${fn.random}
@@ -93,14 +94,6 @@ globals:
   email: default
 
 onInstall:
-  - if ('${settings.db_async_topology}' == 'async'):
-      setGlobals:
-        db_host: proxy
-        db_async_topology: true
-  - else:
-      setGlobals:
-        db_host: sqldb
-        db_async_topology: false      
   - initGlobals
   - setGlobals:
       domain: ${settings.envName}-1.${globals.domain-1}
@@ -108,47 +101,22 @@ onInstall:
   - getEnvNodes
   - installEnvsManager
   
-  - if ('${globals.db_async_topology}' == 'true'):  
-    - install:
-      - jps: ${baseUrl}/scripts/asyncReplicationManager.jps
-        envName: ${settings.envName}-1
-        settings:
-          db_user: ${globals.db_user}
-          db_pass: ${globals.db_pass}
-          repl_user: ${globals.repl_user}
-          repl_pass: ${globals.repl_pass}
-          monitor_user: ${globals.monitor_user}
-          monitor_pass: ${globals.monitor_pass}        
-          cluster_name: ${settings.envName}
+  - install:
+    - jps: ${baseUrl}/scripts/asyncReplicationManager.jps
+      envName: ${settings.envName}-1
+      settings:
+        db_user: ${globals.db_user}
+        db_pass: ${globals.db_pass}
+        repl_user: ${globals.repl_user}
+        repl_pass: ${globals.repl_pass}
         
-      - jps: ${baseUrl}/scripts/geoGlusterManager.jps
-        envName: ${globals.master_env_name}
-        settings:
-          install_gluster_cluster: true
-
-      - jps: ${baseUrl}/scripts/cacheManager.jps
-        envName: ${globals.master_env_name}
-        settings:
-          setup_cache_replication: true
-
-  - else:
-    - install:
-      - jps: ${baseUrl}/scripts/geoGaleraManager.jps
-        envName: ${globals.master_env_name}
-        settings:
-          install_galera_cluster: true
-        
-      - jps: ${baseUrl}/scripts/geoGlusterManager.jps
-        envName: ${globals.master_env_name}
-        settings:
-          install_gluster_cluster: true
-
-      - jps: ${baseUrl}/scripts/cacheManager.jps
-        envName: ${globals.master_env_name}
-        settings:
-          setup_cache_replication: true
+    - jps: ${baseUrl}/scripts/geoGlusterManager.jps
+      envName: ${globals.master_env_name}
+      settings:
+        install_gluster_cluster: true
 
   - install-wordpress
+
   - if (${settings.mu_addon:false}):
     - install: ${globals.wp_cluster_url}/addon/WPMU.jps
       envName: ${globals.master_env_name}
@@ -161,7 +129,7 @@ onInstall:
     - install:
         jps: https://github.com/jelastic-jps/lets-encrypt/blob/stage/manifest.jps?_r=${fn.random}
         envName: ${settings.envName}-1
-        nodeGroup: bl
+        nodeGroup: cp
         skipEmail: true
         settings:
           customDomains: ${globals.domain}
@@ -176,11 +144,6 @@ onInstall:
         skipEmail: true
         settings:
           note: ${settings.noteCDN:}
-  - install:
-      jps: ${baseUrl}/scripts/cacheManager.jps
-      envName: ${globals.master_env_name}
-      settings:
-        clean_cache: true
 
 actions:
 
@@ -203,13 +166,7 @@ actions:
                 glbs["domain-" + index] = resp[a].domain;
             }
           }
-          if (index == 1) {
-            glbs["displayName-" + index] = "WP Cluster Primary";
-            glbs["initial_env_master-" + index] = "true";
-          } else {
-            glbs["displayName-" + index] = "WP Cluster Secondary " + i;
-            glbs["initial_env_master-" + index] = "false";
-          }
+          glbs["displayName-" + index] = "WP Simple " + i;          
         }
         glbs["envGroups"] = envGroups;
         glbs["regionsCount"] = regions.length;
