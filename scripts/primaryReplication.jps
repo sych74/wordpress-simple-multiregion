@@ -47,7 +47,7 @@ actions:
     cmd[cp]: |-
       MYSQL_PWD=${globals.db_pass} mysql -u${globals.db_user} -e "CREATE USER '${globals.repl_user}'@'%' IDENTIFIED BY '${globals.repl_pass}';";
       MYSQL_PWD=${globals.db_pass} mysql -u${globals.db_user} -e "GRANT REPLICATION CLIENT,REPLICATION SLAVE ON *.* TO '${globals.repl_user}'@'%'; FLUSH PRIVILEGES;";
-            
+
   masterConfiguration:
     cmd[cp]: |-
         wget ${globals.db_cluster_url}/configs/master.cnf -O /etc/mysql/conf.d/master.cnf &>> /var/log/run.log
