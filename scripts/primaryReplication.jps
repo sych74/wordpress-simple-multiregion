@@ -1,0 +1,80 @@
+jpsType: update
+id: multiregions-primary-replication
+name: Multi-Regions Primary Replication
+description: Multi-Regions Primary Replication
+baseUrl: https://raw.githubusercontent.com/jelastic-jps/wordpress-multiregions/master
+
+globals:
+  db_cluster_url: https://raw.githubusercontent.com/jelastic-jps/mysql-cluster/v2.4.1
+  master: ${settings.master:false}
+  pre_install: ${settings.pre_install:false}
+  post_install: ${settings.post_install:false}
+  db_user: ${settings.db_user}
+  db_pass: ${settings.db_pass}
+  repl_user: ${settings.repl_user}
+  repl_pass: ${settings.repl_pass}
+  cluster_name: ${settings.cluster_name:false}
+  
+onInstall:
+  - if ('${globals.pre_install}' == 'true'):
+    - if ('${globals.master}' == 'true'):
+      - if ('${env.envName}' == '${globals.cluster_name}-1'):
+        - masterConfiguration:
+            increment: 1
+      - else:
+        - masterConfiguration:
+            increment: 2
+    - setupMainUser
+    - setupReplicaUser    
+  - if ('${globals.post_install}' == 'true'):
+    - getMastersIPs
+    - if ('${globals.master}' == 'true'):
+      - if ('${env.envName}' == '${globals.cluster_name}-1'):
+        - setupMaterReplication:
+            master: ${globals.master2_ip}
+      - else:
+        - setupMaterReplication:
+            master: ${globals.master1_ip}
+
+actions:
+  setupMainUser:
+    cmd[cp]: |-
+      wget ${globals.db_cluster_url}/scripts/setupUser.sh -O ~/setupUser.sh &>> /var/log/run.log
+      bash ~/setupUser.sh ${globals.db_user} ${globals.db_pass} &>> /var/log/run.log
+    user: root
+
+  setupReplicaUser:
+    cmd[cp]: |-
+      MYSQL_PWD=${globals.db_pass} mysql -u${globals.db_user} -e "CREATE USER '${globals.repl_user}'@'%' IDENTIFIED BY '${globals.repl_pass}';";
+      MYSQL_PWD=${globals.db_pass} mysql -u${globals.db_user} -e "GRANT REPLICATION CLIENT,REPLICATION SLAVE ON *.* TO '${globals.repl_user}'@'%'; FLUSH PRIVILEGES;";
+            
+  masterConfiguration:
+    cmd[cp]: |-
+        wget ${globals.db_cluster_url}/configs/gtidMaster.cnf -O /etc/mysql/conf.d/master.cnf &>> /var/log/run.log
+        sed -i "s/report_host.*/report_host = node${nodes.cp.master.id}/" /etc/mysql/conf.d/master.cnf; 
+        sed -i "s/server-id.*/server-id = ${nodes.cp.master.id}/" /etc/mysql/conf.d/master.cnf
+        sed -i "s/auto-increment-offset.*/auto-increment-offset = ${this.increment}/" /etc/mysql/conf.d/master.cnf
+
+  setupMaterReplication:
+    cmd[cp]: |-
+      MYSQL_PWD=${globals.db_pass} mysql -u${globals.db_user} -e "CHANGE MASTER TO MASTER_HOST = '${this.master}', MASTER_USER = '${globals.repl_user}', MASTER_PASSWORD = '${globals.repl_pass}',  MASTER_AUTO_POSITION = 1;";
+      MYSQL_PWD=${globals.db_pass} mysql -u${globals.db_user} -e "START SLAVE;";
+
+  getMastersIPs:
+     - script: |
+        var onAfterReturn = { setGlobals: {} },
+            glbs = onAfterReturn.setGlobals;
+        var resp = jelastic.env.control.GetEnvInfo("${globals.cluster_name}-1", session);
+        if (resp.result != 0) return resp;
+        for (var i = 0, k = resp.nodes; i < k.length; i++) {
+          if (k[i].nodeGroup == 'cp')
+              k[i].ismaster ? glbs["master1_ip"] = k[i].address : 0;
+        }
+        var resp = jelastic.env.control.GetEnvInfo("${globals.cluster_name}-2", session);
+        if (resp.result != 0) return resp;
+        for (var i = 0, k = resp.nodes; i < k.length; i++) {
+          if (k[i].nodeGroup == 'cp')
+              k[i].ismaster ? glbs["master2_ip"] = k[i].address : 0;
+        }
+        return { result: 0, onAfterReturn: onAfterReturn };
+    
