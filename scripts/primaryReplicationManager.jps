@@ -13,8 +13,8 @@ globals:
 
 onInstall:
   - getClusterEnvs
-  - initialAsyncReplication
-  - startAsyncReplication
+  - initialPrimaryReplication
+  - startPrimaryReplication
 
 actions:
   getClusterEnvs:
@@ -24,7 +24,7 @@ actions:
         nextIndex: ${response.nextIndex}
         clusterEnvs: ${response.items.join(,)}
 
-  initialAsyncReplication:
+  initialPrimaryReplication:
     - script: |
         var envs = '${globals.clusterEnvs}'.split(','),
             actions = [], master;
@@ -48,7 +48,7 @@ actions:
         }
         return { result: 0, onAfterReturn: { install: actions } };
 
-  startAsyncReplication:
+  startPrimaryReplication:
     - script: |
         var envs = '${globals.clusterEnvs}'.split(','),
             actions = [], master;
