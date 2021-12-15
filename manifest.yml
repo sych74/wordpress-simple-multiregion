@@ -10,8 +10,6 @@ description:
 logo: https://raw.githubusercontent.com/jelastic-jps/wordpress-multiregions/master/images/82dark-back-01.svg
 baseUrl: https://raw.githubusercontent.com/jelastic-jps/wordpress-multiregions/master
 
-onBeforeInit: /scripts/settings.js?_r=${fn.random}
-
 settings:
   fields:
     - caption: Regions
@@ -52,21 +50,21 @@ settings:
 
     - caption: Install Let's Encrypt SSL with Auto-Renewal
       type: checkbox
-      name: le_addon
+      name: le
       value: true
       disabled: false
       tooltip: "Advanced integration with Let's Encrypt certificate authority that simplifies and automates the process of issuing, configuring and renewing trusted SSL certificates."
 
     - caption: Install Lightning-Fast Premium CDN with 160+ PoPs
       type: checkbox
-      name: cdn_addon
+      name: cdn
       value: true
       disabled: false
       tooltip: "Jelastic CDN is an HTTP/3 premium content delivery network of 160+ Super PoPs (points of presence) with bandwidth capacity up to 115 Tbps, advanced caching and acceleration strategies based on best-in-class IP Anycast technology."
 
     - caption: Install WordPress Multisite Network
       type: checkbox
-      name: mu_addon
+      name: multisite
       value: false
       disabled: false
       tooltip: "Multisite is a type of WordPress installation that allows you to create and manage a network of multiple websites from a single WordPress dashboard. This lets you easily make changes and keep all of your websites updated from one place."
@@ -82,7 +80,6 @@ mixins:
 
 globals:
   wp_standalone_url: https://raw.githubusercontent.com/sych74/wordpress/v3.0.0
-  
   db_user: jelastic-${fn.random}
   db_pass: ${fn.password(10)}
   repl_user: replica-${fn.random}
@@ -95,56 +92,9 @@ globals:
 
 onInstall:
   - initGlobals
-  - setGlobals:
-      domain: ${settings.envName}-1.${globals.domain-1}
   - createEnvs    
   - getEnvNodes
-  - installEnvsManager
   
-  - install:
-    - jps: ${baseUrl}/scripts/asyncReplicationManager.jps
-      envName: ${settings.envName}-1
-      settings:
-        db_user: ${globals.db_user}
-        db_pass: ${globals.db_pass}
-        repl_user: ${globals.repl_user}
-        repl_pass: ${globals.repl_pass}
-        
-    - jps: ${baseUrl}/scripts/geoGlusterManager.jps
-      envName: ${globals.master_env_name}
-      settings:
-        install_gluster_cluster: true
-
-  - install-wordpress
-
-  - if (${settings.mu_addon:false}):
-    - install: ${globals.wp_cluster_url}/addon/WPMU.jps
-      envName: ${globals.master_env_name}
-      settings:
-        mode: subdir
-
-  - if ('${settings.le_addon:false}' == 'true'):
-    - setGlobals:
-        protocol: https      
-    - install:
-        jps: https://github.com/jelastic-jps/lets-encrypt/blob/stage/manifest.jps?_r=${fn.random}
-        envName: ${settings.envName}-1
-        nodeGroup: cp
-        skipEmail: true
-        settings:
-          customDomains: ${globals.domain}
-          fallbackToX1: true
-          webroot: true
-          webrootPath: /var/www/webroot/ROOT
-  - if ('${settings.cdn_addon:false}' == 'true'):
-    - install:
-        jps: https://raw.githubusercontent.com/edgeport/cdn/master/manifest.yml?_r=${fn.random}
-        envName: ${settings.envName}-1
-        nodeGroup: bl
-        skipEmail: true
-        settings:
-          note: ${settings.noteCDN:}
-
 actions:
 
   initGlobals:
@@ -166,7 +116,7 @@ actions:
                 glbs["domain-" + index] = resp[a].domain;
             }
           }
-          glbs["displayName-" + index] = "WP Simple " + i;          
+          glbs["displayName-" + index] = "WP Simple " + index;          
         }
         glbs["envGroups"] = envGroups;
         glbs["regionsCount"] = regions.length;
@@ -179,27 +129,20 @@ actions:
         var envGroups = eval('(' + MANIFEST + ')').envGroups;
         for (var cluster = 1, n = regions.length + 1; cluster < n; cluster ++) {
           actions.push({
-            jps: "${globals.wp_cluster_url}/manifest.yml?_r=${fn.random}",
+            jps: "${globals.wp_standalone_url}/manifest.yml?_r=${fn.random}",
             envName: "${settings.envName}-" + cluster,
             loggerName: "${settings.envName}-" + cluster,
             envGroups: envGroups,
             displayName: "${globals.displayName-" + cluster + "}",
             region: "${globals.region-" + cluster + "}",
             settings: {
+              litespeed: "true",
               waf: "${settings.waf}",
               wp_protect: "${settings.wp_protect}",
-              le_addon: "false",
-              cdn_addon: "false",
+              le: "false",
+              cdn: "false",
               is_install_wp: "false",
-              is_db_cluster: "false",
-              bl_count: "1",
-              ls_admin_pass: "${globals.ls_admin_pass}",
-              glusterfs: "true",
-              galera: "${globals.initial_env_master-" + cluster + "}",
-              db_user: "${globals.db_user}",
-              db_pass: "${globals.db_pass}",
-              loadGrowth: "${settings.loadGrowth}",
-              db_async_topology: "${globals.db_async_topology}"
+              ls_admin_pass: "${globals.ls_admin_pass}"
             }
           });
         }
@@ -214,10 +157,6 @@ actions:
           var resp = jelastic.env.control.GetEnvInfo('${settings.envName}-' + cluster, session);
           if (resp.result != 0) return resp;
           for (var i = 0, k = resp.nodes; i < k.length; i++) {
-            if (k[i].nodeGroup == 'sqldb')
-              k[i].ismaster ? glbs["master_id_galera-" + cluster] = k[i].id : 0;
-            if (k[i].nodeGroup == 'bl') 
-              k[i].ismaster ? glbs["master_id_bl-" + cluster] = k[i].id : 0;
             if (k[i].nodeGroup == 'cp') 
               k[i].ismaster ? glbs["master_id_cp-" + cluster] = k[i].id : 0;
           }
