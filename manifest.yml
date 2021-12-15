@@ -8,7 +8,7 @@ description:
   text: Highly-available and reliable WordPress simple setup with automatic multi-region distribution. The package creates interconnected WordPress sub clusters across several regions ensuring the highest uptime and lowest latency.
   short: Enterprise-grade WordPress Cluster with automatic distribution across several regions.
 logo: https://raw.githubusercontent.com/jelastic-jps/wordpress-multiregions/master/images/82dark-back-01.svg
-baseUrl: https://raw.githubusercontent.com/jelastic-jps/wordpress-multiregions/master
+baseUrl: https://raw.githubusercontent.com/sych74/wordpress-simple-multiregion/master
 
 settings:
   fields:
@@ -94,6 +94,7 @@ onInstall:
   - initGlobals
   - createEnvs    
   - getEnvNodes
+  - installPrimaryReplication
   
 actions:
 
@@ -162,6 +163,17 @@ actions:
           }
         }
         return { result: 0, onAfterReturn: onAfterReturn };
+
+  installPrimaryReplication:
+    - install:
+      - jps: ${baseUrl}/scripts/primaryReplicationManager.jps
+        envName: ${settings.envName}-1
+        settings:
+          db_user: ${globals.db_user}
+          db_pass: ${globals.db_pass}
+          repl_user: ${globals.repl_user}
+          repl_pass: ${globals.repl_pass}
+          cluster_name: ${settings.envName}
 
   installEnvsManager:
     script: |
