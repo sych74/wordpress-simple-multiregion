@@ -1,0 +1,29 @@
+jpsType: update
+id: multiregions-content-synchronization
+name: Multi-Regions Content Synchronization
+description: Multi-Regions Content Synchronization
+baseUrl: https://raw.githubusercontent.com/sych74/wordpress-simple-multiregion/master
+
+globals:
+  sync_pass: ${settings.sync_pass}
+  cluster_name: ${settings.cluster_name:false}
+  
+onInstall:
+    - getMastersIPs
+    - if ('${env.envName}' == '${globals.cluster_name}-1'):
+        setupSynchronization:
+          master: ${globals.master2_ip}
+    - else:
+        setupSynchronization:
+          master: ${globals.master1_ip}
+
+actions:
+  setupSynchronization:
+    install:
+    - jps: https://raw.githubusercontent.com/jelastic-jps/file-sync/master/manifest.jps?_r=${fn.random}
+      skipEmail: true
+      settings:
+        optional: two_envs
+        address: ${this.master}
+        password: ${globals.sync_pass}
+        delay: 5
