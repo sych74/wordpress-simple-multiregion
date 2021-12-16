@@ -49,16 +49,23 @@ actions:
       MYSQL_PWD=${globals.db_pass} mysql -u${globals.db_user} -e "GRANT REPLICATION CLIENT,REPLICATION SLAVE ON *.* TO '${globals.repl_user}'@'%'; FLUSH PRIVILEGES;";
 
   masterConfiguration:
-    cmd[cp]: |-
+    - cmd[cp]: |-
+        yum install https://downloads.mysql.com/archives/get/p/29/file/mysql-connector-python-8.0.11-1.el7.x86_64.rpm -y &>> /var/log/run.log;
+        yum install https://downloads.mysql.com/archives/get/p/30/file/mysql-utilities-1.6.5-1.el7.noarch.rpm -y &>> /var/log/run.log;
+        ln -s /usr/lib/python2.7/site-packages/mysql/utilities /usr/lib64/python2.7/site-packages/mysql/utilities;
+      user: root
+
+    - cmd[cp]: |-
         wget ${globals.db_cluster_url}/configs/master.cnf -O /etc/mysql/conf.d/master.cnf &>> /var/log/run.log;
         sed -i "s/report_host.*/report_host = node${nodes.cp.master.id}/" /etc/mysql/conf.d/master.cnf; 
         sed -i "s/server-id.*/server-id = ${nodes.cp.master.id}/" /etc/mysql/conf.d/master.cnf;
         sed -i "s/auto-increment-offset.*/auto-increment-offset = ${this.increment}/" /etc/mysql/conf.d/master.cnf;
 
   setupMaterReplication:
-    cmd[cp]: |-
-      MYSQL_PWD=${globals.db_pass} mysql -u${globals.db_user} -e "CHANGE MASTER TO MASTER_HOST = '${this.master}', MASTER_USER = '${globals.repl_user}', MASTER_PASSWORD = '${globals.repl_pass}',  MASTER_AUTO_POSITION = 1;";
-      MYSQL_PWD=${globals.db_pass} mysql -u${globals.db_user} -e "START SLAVE;";
+    - cmd[cp]: |-
+        wget ${globals.db_cluster_url}/scripts/setupReplication.sh -O ~/setupReplication.sh &>> /var/log/run.log
+        bash ~/setupReplication.sh ${this.master} ${nodes.cp.master.address} ${globals.db_user} ${globals.db_pass} ${globals.repl_user} ${globals.repl_pass} &>> /var/log/run.log
+      user: root
 
   getMastersIPs:
      - script: |
