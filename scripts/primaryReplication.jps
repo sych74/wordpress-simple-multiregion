@@ -57,9 +57,10 @@ actions:
 
     - cmd[cp]: |-
         wget ${globals.db_cluster_url}/configs/master.cnf -O /etc/mysql/conf.d/master.cnf &>> /var/log/run.log;
-        sed -i "s/report_host.*/report_host = node${nodes.cp.master.id}/" /etc/mysql/conf.d/master.cnf; 
+        sed -i "s/report_host.*/report_host = ${nodes.cp.master.address}/" /etc/mysql/conf.d/master.cnf; 
         sed -i "s/server-id.*/server-id = ${nodes.cp.master.id}/" /etc/mysql/conf.d/master.cnf;
         sed -i "s/auto-increment-offset.*/auto-increment-offset = ${this.increment}/" /etc/mysql/conf.d/master.cnf;
+        echo "bind-address = ${nodes.cp.master.address}" >> /etc/mysql/conf.d/master.cnf;
 
   setupMaterReplication:
     - cmd[cp]: |-
