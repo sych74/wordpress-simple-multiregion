@@ -82,6 +82,7 @@ globals:
   wp_standalone_url: https://raw.githubusercontent.com/sych74/wordpress/v3.0.0
   db_user: jelastic-${fn.random}
   db_pass: ${fn.password(10)}
+  sync_pass: ${fn.password(10)}
   repl_user: replica-${fn.random}
   repl_pass: ${fn.password(10)}
   protocol: http
@@ -94,7 +95,7 @@ onInstall:
   - initGlobals
   - createEnvs    
   - getEnvNodes
-  - installPrimaryReplication
+  - installReplications
   
 actions:
 
@@ -164,7 +165,7 @@ actions:
         }
         return { result: 0, onAfterReturn: onAfterReturn };
 
-  installPrimaryReplication:
+  installReplications:
     - install:
       - jps: ${baseUrl}/scripts/primaryReplicationManager.jps
         envName: ${settings.envName}-1
@@ -174,30 +175,11 @@ actions:
           repl_user: ${globals.repl_user}
           repl_pass: ${globals.repl_pass}
           cluster_name: ${settings.envName}
-
-  installEnvsManager:
-    script: |
-      var regions = '${settings.regions}'.split(','),
-          actions = [];
-      for (var cluster = 1, n = regions.length + 1; cluster < n; cluster ++) {
-        actions.push({
-          jps: "${baseUrl}/scripts/envManager.jps?_r=${fn.random}",
-          envName: "${settings.envName}-" + cluster,
-          settings: {
-              wp_cluster_url: "${globals.wp_cluster_url}",
-              db_cluster_url: "${globals.db_cluster_url}",
-              master_env_name: "${settings.envName}-1",
-              cluster_name: "${settings.envName}",
-              galera_server_id: "${globals.galera_server_id}",
-              galera_segment_id: cluster,
-              db_user: "${globals.db_user}",
-              db_pass: "${globals.db_pass}",
-              ls_admin_pass: "${globals.ls_admin_pass}",
-              envName: "${settings.envName}"
-          }
-        });
-      }
-      return { result: 0, onAfterReturn: { install: actions } };
+      - jps: ${baseUrl}/scripts/contentSynchronizationManager.jps
+        envName: ${settings.envName}-1
+        settings:
+          sync_pass: ${globals.sync_pass}
+          cluster_name: ${settings.envName}
 
   install-wordpress:
     - install: ${globals.wp_cluster_url}/scripts/installWP.jps
