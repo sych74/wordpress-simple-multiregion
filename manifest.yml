@@ -96,6 +96,7 @@ onInstall:
   - createEnvs    
   - getEnvNodes
   - installReplications
+  - install-wordpress
   
 actions:
 
@@ -183,9 +184,9 @@ actions:
 
   install-wordpress:
     - install: ${globals.wp_cluster_url}/scripts/installWP.jps
-      envName: ${globals.master_env_name}
+      envName: ${settings.envName}-1
       settings:
-        db_host: ${globals.db_host}
+        db_host: 127.0.0.1
         db_user: ${globals.db_user}
         db_pass: ${globals.db_pass}
         wp_admin_pass: ${globals.wp_admin_pass}
