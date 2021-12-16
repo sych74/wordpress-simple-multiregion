@@ -21,6 +21,7 @@ actions:
   setupSynchronization:
     install:
     - jps: https://raw.githubusercontent.com/jelastic-jps/file-sync/master/manifest.jps?_r=${fn.random}
+      nodeGroup: cp
       skipEmail: true
       settings:
         optional: two_envs
