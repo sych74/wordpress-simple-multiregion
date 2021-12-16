@@ -10,8 +10,7 @@ globals:
 
 onInstall:
   - getClusterEnvs
-  - initialPrimaryReplication
-  - startPrimaryReplication
+  - initialContentSynchronization
 
 actions:
   getClusterEnvs:
@@ -21,7 +20,7 @@ actions:
         nextIndex: ${response.nextIndex}
         clusterEnvs: ${response.items.join(,)}
 
-  initialPrimaryReplication:
+  initialContentSynchronization:
     - script: |
         var envs = '${globals.clusterEnvs}'.split(','), actions = [];
         for (var i = 0, n = envs.length; i < n; i ++) {
