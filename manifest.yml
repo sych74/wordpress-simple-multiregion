@@ -79,8 +79,8 @@ mixins:
  - https://raw.githubusercontent.com/jelastic-jps/wordpress/master/configs/vers.yaml
 
 globals:
-  wp_standalone_url: https://raw.githubusercontent.com/sych74/wordpress/v3.0.0
-  wp_cluster_url: https://raw.githubusercontent.com/sych74/wordpress-cluster/v3.0.0
+  wp_standalone: https://raw.githubusercontent.com/sych74/wordpress/v3.0.0
+  wp_scripts: https://raw.githubusercontent.com/jelastic-jps/wordpress-cluster/v2.1.0/scripts
   db_user: jelastic-${fn.random}
   db_pass: ${fn.password(10)}
   sync_pass: ${fn.password(10)}
@@ -133,7 +133,7 @@ actions:
         var envGroups = eval('(' + MANIFEST + ')').envGroups;
         for (var cluster = 1, n = regions.length + 1; cluster < n; cluster ++) {
           actions.push({
-            jps: "${globals.wp_standalone_url}/manifest.yml?_r=${fn.random}",
+            jps: "${globals.wp_standalone}/manifest.yml?_r=${fn.random}",
             envName: "${settings.envName}-" + cluster,
             loggerName: "${settings.envName}-" + cluster,
             envGroups: envGroups,
@@ -184,7 +184,7 @@ actions:
           cluster_name: ${settings.envName}
 
   install-wordpress:
-    - install: ${globals.wp_cluster_url}/scripts/installWP.jps
+    - install: ${globals.wp_scripts}/installWP.jps
       envName: ${settings.envName}-1
       settings:
         db_host: 127.0.0.1
@@ -194,6 +194,7 @@ actions:
         wp_title: "Hello World"
         wp_url: ${globals.protocol}://${globals.domain}
         version_wordpress: ${globals.version_wordpress}
+        cluster: false
   
 success:
   email: success/email/${globals.regionsCount}-region-${globals.email}.md?_r=${fn.random}
