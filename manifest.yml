@@ -8,7 +8,12 @@ description:
   text: Highly-available and reliable WordPress simple setup with automatic multi-region distribution. The package creates interconnected WordPress sub clusters across several regions ensuring the highest uptime and lowest latency.
   short: Enterprise-grade WordPress Cluster with automatic distribution across several regions.
 logo: https://raw.githubusercontent.com/jelastic-jps/wordpress-multiregions/master/images/82dark-back-01.svg
+
 baseUrl: https://raw.githubusercontent.com/sych74/wordpress-simple-multiregion/master
+
+mixins:
+  - https://raw.githubusercontent.com/jelastic-jps/wordpress/master/configs/vers.yaml
+  - https://raw.githubusercontent.com/sych74/wordpress/v3.0.0/configs/additionalGlobals.yaml
 
 settings:
   fields:
@@ -50,21 +55,21 @@ settings:
 
     - caption: Install Let's Encrypt SSL with Auto-Renewal
       type: checkbox
-      name: le
+      name: le_addon
       value: true
       disabled: false
       tooltip: "Advanced integration with Let's Encrypt certificate authority that simplifies and automates the process of issuing, configuring and renewing trusted SSL certificates."
 
     - caption: Install Lightning-Fast Premium CDN with 160+ PoPs
       type: checkbox
-      name: cdn
+      name: cdn_addon
       value: true
       disabled: false
       tooltip: "Jelastic CDN is an HTTP/3 premium content delivery network of 160+ Super PoPs (points of presence) with bandwidth capacity up to 115 Tbps, advanced caching and acceleration strategies based on best-in-class IP Anycast technology."
 
     - caption: Install WordPress Multisite Network
       type: checkbox
-      name: multisite
+      name: mu_addon
       value: false
       disabled: false
       tooltip: "Multisite is a type of WordPress installation that allows you to create and manage a network of multiple websites from a single WordPress dashboard. This lets you easily make changes and keep all of your websites updated from one place."
@@ -75,12 +80,8 @@ settings:
       name: message   
       value: 1
       markup:
-mixins:
- - https://raw.githubusercontent.com/jelastic-jps/wordpress/master/configs/vers.yaml
 
 globals:
-  wp_standalone: https://raw.githubusercontent.com/sych74/wordpress/v3.0.0
-  wp_scripts: https://raw.githubusercontent.com/jelastic-jps/wordpress-cluster/v2.1.0/scripts
   db_user: jelastic-${fn.random}
   db_pass: ${fn.password(10)}
   sync_pass: ${fn.password(10)}
@@ -133,19 +134,19 @@ actions:
         var envGroups = eval('(' + MANIFEST + ')').envGroups;
         for (var cluster = 1, n = regions.length + 1; cluster < n; cluster ++) {
           actions.push({
-            jps: "${globals.wp_standalone}/manifest.yml?_r=${fn.random}",
+            jps: "${globals.wp_standalone_path}/manifest.yml?_r=${fn.random}",
             envName: "${settings.envName}-" + cluster,
             loggerName: "${settings.envName}-" + cluster,
             envGroups: envGroups,
             displayName: "${globals.displayName-" + cluster + "}",
             region: "${globals.region-" + cluster + "}",
             settings: {
-              litespeed: "true",
+              ls_addon: "true",
               waf: "${settings.waf}",
               wp_protect: "${settings.wp_protect}",
-              le: "false",
-              cdn: "false",
-              is_install_wp: "false",
+              le_addon: "false",
+              cdn_addon: "false",
+              is_single_deploy: "false",
               ls_admin_pass: "${globals.ls_admin_pass}"
             }
           });
