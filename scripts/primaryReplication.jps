@@ -8,7 +8,6 @@ mixins:
   - https://raw.githubusercontent.com/sych74/wordpress-simple-multiregion/master/configs/additionalGlobals.yaml
 
 globals:
-  db_cluster_url: https://raw.githubusercontent.com/jelastic-jps/mysql-cluster/v2.4.1
   master: ${settings.master:false}
   pre_install: ${settings.pre_install:false}
   post_install: ${settings.post_install:false}
