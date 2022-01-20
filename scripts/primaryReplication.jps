@@ -4,6 +4,9 @@ name: Multi-Regions Primary Replication
 description: Multi-Regions Primary Replication
 baseUrl: https://raw.githubusercontent.com/jelastic-jps/wordpress-multiregions/master
 
+mixins:
+  - https://raw.githubusercontent.com/sych74/wordpress-simple-multiregion/master/configs/additionalGlobals.yaml
+
 globals:
   db_cluster_url: https://raw.githubusercontent.com/jelastic-jps/mysql-cluster/v2.4.1
   master: ${settings.master:false}
