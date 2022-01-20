@@ -193,7 +193,7 @@ actions:
         db_pass: ${globals.db_pass}
         wp_admin_pass: ${globals.wp_admin_pass}
         wp_title: "Hello World"
-        wp_url: ${globals.protocol}://${globals.domain}
+        wp_url: ${globals.protocol}://${globals.domain-1}
         version_wordpress: ${globals.version_wordpress}
         cluster: false
   
