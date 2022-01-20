@@ -6,14 +6,14 @@ categories:
   - apps/content-management
 description: 
   text: Highly-available and reliable WordPress simple setup with automatic multi-region distribution. The package creates interconnected WordPress sub clusters across several regions ensuring the highest uptime and lowest latency.
-  short: Enterprise-grade WordPress Cluster with automatic distribution across several regions.
+  short: Enterprise-grade WordPress Simple with automatic distribution across several regions.
 logo: https://raw.githubusercontent.com/jelastic-jps/wordpress-multiregions/master/images/82dark-back-01.svg
 
 baseUrl: https://raw.githubusercontent.com/sych74/wordpress-simple-multiregion/master
 
 mixins:
   - https://raw.githubusercontent.com/jelastic-jps/wordpress/master/configs/vers.yaml
-  - https://raw.githubusercontent.com/sych74/wordpress/v3.0.0/configs/additionalGlobals.yaml
+  - https://raw.githubusercontent.com/sych74/wordpress-simple-multiregion/master/configs/additionalGlobals.yaml
 
 settings:
   fields:
@@ -98,7 +98,7 @@ onInstall:
   - createEnvs    
   - getEnvNodes
   - installReplications
-  - install-wordpress
+  - installWordpress
   
 actions:
 
@@ -184,11 +184,11 @@ actions:
           sync_pass: ${globals.sync_pass}
           cluster_name: ${settings.envName}
 
-  install-wordpress:
-    - install: ${globals.wp_scripts}/installWP.jps
+  installWordpress:
+    - install: ${globals.wp_cluster_path}/installWP.jps
       envName: ${settings.envName}-1
       settings:
-        db_host: localhost
+        db_host: 127.0.0.1
         db_user: ${globals.db_user}
         db_pass: ${globals.db_pass}
         wp_admin_pass: ${globals.wp_admin_pass}
