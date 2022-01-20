@@ -8,7 +8,6 @@ mixins:
   - https://raw.githubusercontent.com/sych74/wordpress-simple-multiregion/master/configs/additionalGlobals.yaml
 
 globals:
-  db_cluster_url: ${settings.db_cluster_url}
   master: ${settings.master:false}
   pre_install: ${settings.pre_install:false}
   post_install: ${settings.post_install:false}
@@ -42,7 +41,7 @@ onInstall:
 actions:
   setupMainUser:
     cmd[cp]: |-
-      wget ${globals.db_cluster_url}/scripts/setupUser.sh -O ~/setupUser.sh &>> /var/log/run.log;
+      wget ${globals.db_cluster_path}/scripts/setupUser.sh -O ~/setupUser.sh &>> /var/log/run.log;
       bash ~/setupUser.sh ${globals.db_user} ${globals.db_pass} &>> /var/log/run.log;
     user: root
 
@@ -59,7 +58,7 @@ actions:
       user: root
 
     - cmd[cp]: |-
-        wget ${globals.db_cluster_url}/configs/master.cnf -O /etc/mysql/conf.d/master.cnf &>> /var/log/run.log;
+        wget ${globals.db_cluster_path}/configs/master.cnf -O /etc/mysql/conf.d/master.cnf &>> /var/log/run.log;
         sed -i "s/report_host.*/report_host = ${nodes.cp.master.address}/" /etc/mysql/conf.d/master.cnf; 
         sed -i "s/server-id.*/server-id = ${nodes.cp.master.id}/" /etc/mysql/conf.d/master.cnf;
         sed -i "s/auto-increment-offset.*/auto-increment-offset = ${this.increment}/" /etc/mysql/conf.d/master.cnf;
@@ -67,7 +66,7 @@ actions:
 
   setupMaterReplication:
     - cmd[cp]: |-
-        wget ${globals.db_cluster_url}/scripts/setupReplication.sh -O ~/setupReplication.sh &>> /var/log/run.log
+        wget ${globals.db_cluster_path}/scripts/setupReplication.sh -O ~/setupReplication.sh &>> /var/log/run.log
         bash ~/setupReplication.sh ${this.master} ${nodes.cp.master.address} ${globals.db_user} ${globals.db_pass} ${globals.repl_user} ${globals.repl_pass} &>> /var/log/run.log
       user: root
 
