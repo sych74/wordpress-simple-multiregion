@@ -5,7 +5,7 @@ description: Multi-Regions Primary Replication Manager
 baseUrl: https://raw.githubusercontent.com/sych74/wordpress-simple-multiregion/master
 
 globals:
-  db_cluster_url: ${settings.db_cluster_url}
+  db_cluster_path: ${settings.db_cluster_path}
   db_user: ${settings.db_user}
   db_pass: ${settings.db_pass}
   repl_user: ${settings.repl_user}
@@ -37,7 +37,7 @@ actions:
             jps: "${baseUrl}/scripts/primaryReplication.jps?_r=${fn.random}",
             envName: envs[i],
             settings: {
-              db_cluster_url: "${globals.db_cluster_url}",
+              db_cluster_path: "${globals.db_cluster_path}",
               master: master,
               pre_install: "true",
               db_user: "${globals.db_user}",
@@ -62,7 +62,7 @@ actions:
             jps: "${baseUrl}/scripts/primaryReplication.jps?_r=${fn.random}",
             envName: envs[i],
             settings: {
-              db_cluster_url: "${globals.db_cluster_url}",
+              db_cluster_path: "${globals.db_cluster_path}",
               master: master,
               post_install: "true",
               db_user: "${globals.db_user}",
