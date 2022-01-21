@@ -95,6 +95,8 @@ globals:
 
 onInstall:
   - initGlobals
+  - setGlobals:
+      domain: ${settings.envName}-1.${globals.domain-1}
   - createEnvs    
   - getEnvNodes
   - installReplications
@@ -185,7 +187,7 @@ actions:
           cluster_name: ${settings.envName}
 
   installWordpress:
-    - install: ${globals.wp_cluster_path}/installWP.jps
+    - install: ${globals.wp_cluster_path}/scripts/installWP.jps
       envName: ${settings.envName}-1
       settings:
         db_host: 127.0.0.1
@@ -193,7 +195,7 @@ actions:
         db_pass: ${globals.db_pass}
         wp_admin_pass: ${globals.wp_admin_pass}
         wp_title: "Hello World"
-        wp_url: ${globals.protocol}://${globals.domain-1}
+        wp_url: ${globals.protocol}://${globals.domain}
         version_wordpress: ${globals.version_wordpress}
         cluster: false
   
