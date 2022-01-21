@@ -9,15 +9,19 @@ globals:
   cluster_name: ${settings.cluster_name:false}
   
 onInstall:
-    - getMastersIPs
-    - if ('${env.envName}' == '${globals.cluster_name}-1'):
-        setupSynchronization:
-          master: ${globals.master2_ip}
-    - else:
-        setupSynchronization:
-          master: ${globals.master1_ip}
+  - cleanDir
+  - getMastersIPs
+  - if ('${env.envName}' == '${globals.cluster_name}-1'):
+      setupSynchronization:
+        master: ${globals.master2_ip}
+  - else:
+      setupSynchronization:
+        master: ${globals.master1_ip}
 
 actions:
+  cleanDir:
+    cmd[cp]: rm -rf /var/www/webroot/ROOT/{*,.[a-zA-Z_-]*};
+
   setupSynchronization:
     install:
     - jps: https://raw.githubusercontent.com/jelastic-jps/file-sync/master/manifest.jps?_r=${fn.random}
