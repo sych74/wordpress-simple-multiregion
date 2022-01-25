@@ -146,8 +146,7 @@ actions:
               wp_protect: "${settings.wp_protect}",
               le_addon: "false",
               cdn_addon: "false",
-              is_single_deploy: "false",
-              ls_admin_pass: "${globals.ls_admin_pass}"
+              is_single_deploy: "false"
             }
           });
         }
