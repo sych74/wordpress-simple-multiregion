@@ -89,7 +89,6 @@ globals:
   repl_pass: ${fn.password(10)}
   protocol: http
   wp_admin_pass: ${fn.password(10)}
-  ls_admin_pass: ${fn.password(10)}
   success: default
 
 onInstall:
