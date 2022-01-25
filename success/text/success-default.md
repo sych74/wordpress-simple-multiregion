@@ -1,5 +1,5 @@
 **WP Simple 1**: [${globals.protocol}://${settings.envName}-1.${globals.domain-1}/](${globals.protocol}://${settings.envName}-1.${globals.domain-1}/)   
-**WP Simple 1**: [${globals.protocol}://${settings.envName}-2.${globals.domain-2}/](${globals.protocol}://${settings.envName}-2.${globals.domain-2}/)   
+**WP Simple 2**: [${globals.protocol}://${settings.envName}-2.${globals.domain-2}/](${globals.protocol}://${settings.envName}-2.${globals.domain-2}/)   
 
 **Site URL**: [${globals.protocol}://${globals.domain}/](${globals.protocol}://${globals.domain}/)   
 
