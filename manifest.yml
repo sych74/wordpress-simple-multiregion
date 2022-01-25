@@ -91,7 +91,6 @@ globals:
   wp_admin_pass: ${fn.password(10)}
   ls_admin_pass: ${fn.password(10)}
   success: default
-  email: default
 
 onInstall:
   - initGlobals
@@ -200,7 +199,7 @@ actions:
         cluster: false
   
 success:
-  email: success/email/success-${globals.email}.md?_r=${fn.random}
+  email: success/email/success-${globals.success}.md?_r=${fn.random}
   text: success/text/success-${globals.success}.md?_r=${fn.random}
 
 startPage: ${globals.protocol}://${globals.domain}/
