@@ -200,7 +200,7 @@ actions:
         cluster: false
   
 success:
-  email: success/email/${globals.regionsCount}-region-${globals.email}.md?_r=${fn.random}
-  text: success/text/${globals.regionsCount}-region-${globals.success}.md?_r=${fn.random}
+  email: success/email/success-${globals.email}.md?_r=${fn.random}
+  text: success/text/success-${globals.success}.md?_r=${fn.random}
 
 startPage: ${globals.protocol}://${globals.domain}/
