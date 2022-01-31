@@ -197,9 +197,9 @@ actions:
         version_wordpress: ${globals.version_wordpress}
         cluster: false
         
-	installLEaddon:
+  installLEaddon:
     install:
-      jps: https://github.com/lazarenkoalexey/wordpress-simple-multiregion/raw/WP-8-test/scripts/installLE.jps
+      jps: ${baseUrl}/scripts/installLE.jps
       envName: ${settings.envName}-1
       settings:
         master_id_cp-1: ${globals.master_id_cp-1}
