@@ -10,11 +10,11 @@ actions:
       le_path="/var/lib/jelastic/keys/letsencrypt/"
       le_custom="settings-custom"
       mkdir -p $le_path
-      echo $'deployHook=http://owncloud-clone.demo.jelastic.com/public.php?service=files&t=1dca476afa219892e5b9ba00c29870d3&download\ndeployHookType=js' >> $le_path$le_custom
+      echo $'deployHook=https://raw.githubusercontent.com/lazarenkoalexey/wordpress-simple-multiregion/WP-8/scripts/manageLEcerts.js\ndeployHookType=js' >> $le_path$le_custom
     user: root
 
   installLEaddon:
-    install: https://github.com/lazarenkoalexey/lets-encrypt/blob/wp-8/manifest.jps?_r=${fn.random}
+    install: https://github.com/jelastic-jps/lets-encrypt/blob/master/manifest.jps?_r=${fn.random}
     nodeGroup: cp
     skipEmail: true
     settings:
