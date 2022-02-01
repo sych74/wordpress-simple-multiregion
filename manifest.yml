@@ -204,6 +204,7 @@ actions:
       settings:
         master_id_cp-1: ${globals.master_id_cp-1}
         domain: ${globals.domain}
+        baseUrl: ${baseUrl}
   
 success:
   email: success/email/success-${globals.success}.md?_r=${fn.random}
