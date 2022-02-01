@@ -10,7 +10,7 @@ actions:
       le_path="/var/lib/jelastic/keys/letsencrypt/"
       le_custom="settings-custom"
       mkdir -p $le_path
-      echo $'deployHook=https://raw.githubusercontent.com/sych74/wordpress-simple-multiregion/master/scripts/manageLEcerts.js\ndeployHookType=js' >> $le_path$le_custom
+      echo $'deployHook=${settings.baseUrl}/scripts/manageLEcerts.js\ndeployHookType=js' >> $le_path$le_custom
     user: root
 
   installLEaddon:
