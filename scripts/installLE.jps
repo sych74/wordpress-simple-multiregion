@@ -1,5 +1,5 @@
 type: update
-name: insaallLet's Encrypt add-on
+name: Let's Encrypt add-on
 onInstall:
   - prepareLEConfig
   - installLEaddon
