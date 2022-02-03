@@ -17,7 +17,7 @@ if (cert_key.body && chain.body && cert.body) {
         if (resp.result != 0) return resp;
 
         if (!resp.exist) {
-            resp = jelastic.env.binder.SetExtIpCount(secondEnvName, session, "ipv4", 1, nodeGroup);
+            resp = api.env.binder.SetExtIpCount(secondEnvName, session, "ipv4", 1, nodeGroup);
             if (resp.result != 0) return resp;
         }
 
