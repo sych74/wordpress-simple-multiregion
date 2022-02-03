@@ -33,7 +33,7 @@ return {
 };
 
 function readFile(path) {
-    return jelastic.env.file.Read(envName, session, path, null, nodeGroup || null, nodeId);
+    return api.env.file.Read(envName, session, path, null, nodeGroup || null, nodeId);
 };
 
 function bindSSL(name) {
