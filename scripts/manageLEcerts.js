@@ -68,5 +68,5 @@ function isExtIpsExist(name) {
     return {
         result: 0,
         exist: exist
-    }
+    };
 };
