@@ -30,7 +30,7 @@ if (cert_key.body && chain.body && cert.body) {
 
 return {
     result: 0
-}
+};
 
 function readFile(path) {
     return jelastic.env.file.Read(envName, session, path, null, nodeGroup || null, nodeId);
