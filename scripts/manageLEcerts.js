@@ -12,7 +12,7 @@ if (cert_key.body && chain.body && cert.body) {
     resp = bindSSL();
     if (resp.result != 0) return resp;
 
-    if (String(envName.slice(-1)) == 1) {
+    if (String(envName).slice(-1) == 1) {
         resp = isExtIpsExist(secondEnvName);
         if (resp.result != 0) return resp;
 
