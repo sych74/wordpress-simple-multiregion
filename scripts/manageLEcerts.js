@@ -37,7 +37,7 @@ function readFile(path) {
 };
 
 function bindSSL(name) {
-    return jelastic.env.binder.BindSSL({
+    return api.env.binder.BindSSL({
         "envName": name || envName,
         "session": session,
         "cert_key": cert_key.body,
