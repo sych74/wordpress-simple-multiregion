@@ -51,7 +51,7 @@ function isExtIpsExist(name) {
         node,
         exist = true;
 
-    resp = jelastic.env.control.GetEnvInfo(name, session);
+    resp = api.env.control.GetEnvInfo(name, session);
     if (resp.result != 0) return resp;
 
     for (var i = 0, n = resp.nodes.length; i < n; i++) {
