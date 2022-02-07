@@ -47,18 +47,26 @@ addons:
         successText:  Caches have been successfully cleaned!                
     
 actions:
-  
-
   cache_purge:
-    - cmd[${nodes.cp.master.id}]: |-
-        [ -d /var/www/webroot/ROOT/var/cache/ ] && rm -rf /var/www/webroot/ROOT/var/cache/* &>> /var/log/run.log;
-    - cmd[cp]: |-
-        [ -f /var/www/webroot/ROOT/bin/magento ] && php /var/www/webroot/ROOT/bin/magento cache:flush &>> /var/log/run.log;
-        [ -f /var/www/webroot/ROOT/bin/magento ] && php /var/www/webroot/ROOT/bin/magento cache:clean &>> /var/log/run.log;
-    - if (nodes.bl):
-        cmd[bl]: |-
-          [ -d /tmp/lscache/vhosts/Jelastic/ ] && rm -rf /tmp/lscache/vhosts/Jelastic/* &>> /var/log/run.log;
- 
+    - script: ${baseUrl}/scripts/getClusterEnvs.js
+      envName: ${env.name}
+    - setGlobals:
+        clusterEnvs: ${response.items.join(,)} 
+    - script: |
+        var envs = '${response.items.join(,)}'.split(','), api = [];
+        for (var i = 0, n = envs.length; i < n; i ++) {
+          api.push({
+            method: "env.control.ExecCmdByGroup",
+              envName: envs[i],
+              nodeGroup: "cp",
+              commandList: [
+                {"command": "wp litespeed-purge all --path=/var/www/webroot/ROOT/;"},
+                {"command": "rm -rf /var/www/webroot/.cache/vhosts/Jelastic/*;"},
+              ]
+          });
+        }
+        return { result: 0, onAfterReturn: { api: api, async: true } }
+
   setup_base_url:
-    - cmd[${nodes.cp.master.id}]: bash ~/bin/setupWP.sh --DOMAIN ${settings.wordpressURL};
+    - cmd[cp]: bash ~/bin/setupWP.sh --DOMAIN ${settings.wordpressURL}
     - cache_purge
