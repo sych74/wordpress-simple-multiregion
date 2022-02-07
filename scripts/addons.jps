@@ -1,0 +1,62 @@
+type: update
+id: wordpress-addons
+name: WordPress Addons
+description: WordPress Addons
+
+onInstall:
+  installAddon:
+  - id: wp-setup-base-url-addon
+    nodeGroup: cp  
+  - id: wp-cache-purge-addon
+    nodeGroup: cp  
+
+addons:
+  - id: wp-setup-base-url-addon
+    type: update
+    name: WordPress Base URL
+    description: WordPress Base URL Configuration.
+    settings:
+      fields:
+        - type: string
+          name: wordpressURL
+          caption: Base URL for WordPress
+          default: ''
+          required: true
+          regex: "^https?:\\/\\/.+$"
+          regexText: Incorrect Base URL.
+
+    buttons:
+      - caption: Base URL
+        settings: main
+        action: setup_base_url
+        loadingText: Applying...
+        confirmText: Do you want to change Base URL?
+        successText:  Base URL for WordPress has been successfully applyed!        
+
+  - id: wp-cache-purge-addon
+    type: update
+    name: Cache Manager
+    description: Clean all caches.
+    buttons:
+      - caption: Clean all caches
+        action: cache_purge
+        loadingText: Cleaning...
+        confirmText: Do you want to clean all caches?
+        successText:  Caches have been successfully cleaned!                
+    
+actions:
+  
+
+  cache_purge:
+    - cmd[${nodes.cp.master.id}]: |-
+        [ -d /var/www/webroot/ROOT/var/cache/ ] && rm -rf /var/www/webroot/ROOT/var/cache/* &>> /var/log/run.log;
+    - cmd[cp]: |-
+        [ -f /var/www/webroot/ROOT/bin/magento ] && php /var/www/webroot/ROOT/bin/magento cache:flush &>> /var/log/run.log;
+        [ -f /var/www/webroot/ROOT/bin/magento ] && php /var/www/webroot/ROOT/bin/magento cache:clean &>> /var/log/run.log;
+    - if (nodes.bl):
+        cmd[bl]: |-
+          [ -d /tmp/lscache/vhosts/Jelastic/ ] && rm -rf /tmp/lscache/vhosts/Jelastic/* &>> /var/log/run.log;
+ 
+  setup_base_url:
+    - cmd[${nodes.cp.master.id}]: bash ~/bin/setupWP.sh --DOMAIN ${settings.wordpressURL};
+    - cache_purge
