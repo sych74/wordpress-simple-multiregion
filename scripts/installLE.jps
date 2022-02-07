@@ -1,0 +1,22 @@
+type: update
+name: Let's Encrypt add-on
+onInstall:
+  - prepareLEConfig
+  - installLEaddon
+
+actions:
+  prepareLEConfig:
+    cmd [${settings.master_id_cp-1}]: |-
+      le_path="/var/lib/jelastic/keys/letsencrypt/"
+      le_custom="settings-custom"
+      mkdir -p $le_path
+      echo $'deployHook=${settings.baseUrl}/scripts/manageLEcerts.js\ndeployHookType=js' >> $le_path$le_custom
+    user: root
+
+  installLEaddon:
+    install: https://github.com/jelastic-jps/lets-encrypt/blob/master/manifest.jps?_r=${fn.random}
+    nodeGroup: cp
+    skipEmail: true
+    settings:
+      customDomains: ${settings.domain}
+      fallbackToX1: true

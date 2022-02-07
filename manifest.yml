@@ -99,6 +99,7 @@ onInstall:
   - getEnvNodes
   - installReplications
   - installWordpress
+  - if (${settings.le_addon:false}): installLEaddon
   
 actions:
 
@@ -195,6 +196,15 @@ actions:
         wp_url: ${globals.protocol}://${globals.domain}
         version_wordpress: ${globals.version_wordpress}
         cluster: false
+        
+  installLEaddon:
+    install:
+      jps: ${baseUrl}/scripts/installLE.jps
+      envName: ${settings.envName}-1
+      settings:
+        master_id_cp-1: ${globals.master_id_cp-1}
+        domain: ${globals.domain}
+        baseUrl: ${baseUrl}
   
 success:
   email: success/email/success-${globals.success}.md?_r=${fn.random}
