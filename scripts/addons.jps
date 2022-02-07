@@ -3,14 +3,16 @@ id: wordpress-addons
 name: WordPress Addons
 description: WordPress Addons
 
-baseUrl: https://raw.githubusercontent.com/sych74/wordpress-simple-multiregion/master
+mixins:
+  - https://raw.githubusercontent.com/sych74/wordpress-simple-multiregion/master/configs/additionalGlobals.yaml
 
 onInstall:
-  installAddon:
-  - id: wp-setup-base-url-addon
-    nodeGroup: cp  
-  - id: wp-cache-purge-addon
-    nodeGroup: cp  
+  - installDependencies
+  - installAddon:
+    - id: wp-setup-base-url-addon
+      nodeGroup: cp  
+    - id: wp-cache-purge-addon
+      nodeGroup: cp  
 
 addons:
   - id: wp-setup-base-url-addon
@@ -41,14 +43,25 @@ addons:
     description: Clean all caches.
     buttons:
       - caption: Clean all caches
-        action: cache_purge
+        action: cachePurge
         loadingText: Cleaning...
         confirmText: Do you want to clean all caches?
-        successText:  Caches have been successfully cleaned!                
-    
+        successText:  Caches have been successfully cleaned!
+        
 actions:
-  cache_purge:
-    - script: ${baseUrl}/scripts/getClusterEnvs.js
+  installDependencies:
+    - cmd[cp]: |-
+        [ ! -d $HOME/bin ] && mkdir $HOME/bin;
+        curl -o $HOME/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && chmod +x $HOME/bin/wp;
+        echo "export PATH=$PATH:$HOME/bin/" >> $HOME/.bash_profile;
+        wget ${globals.wp_cluster_path}/scripts/setupWP.sh?_r=${fn.random} -O ~/bin/setupWP.sh &>> /var/log/run.log;
+        echo $HOME/bin;
+    - cmd[cp]:
+        echo ${response.out} >> /etc/jelastic/redeploy.conf;
+      user: root
+
+  cachePurge:
+    - script: ${globals.base_path}/scripts/getClusterEnvs.js
       envName: ${env.name}
     - setGlobals:
         clusterEnvs: ${response.items.join(,)} 
@@ -69,4 +82,4 @@ actions:
 
   setup_base_url:
     - cmd[cp]: bash ~/bin/setupWP.sh --DOMAIN ${settings.wordpressURL}
-    - cache_purge
+    - cachePurge
