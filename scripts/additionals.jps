@@ -1,0 +1,8 @@
+type: update
+id: wordpress-simple-multiregion-additionals
+name: WordPress Simple MultiRegion Additionals
+description: WordPress Simple MultiRegion Additionals
+
+onInstall:
+  - install:
+    - jps: /addons.jps?_r=${fn.random}
