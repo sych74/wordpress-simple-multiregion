@@ -3,6 +3,8 @@ id: wordpress-addons
 name: WordPress Addons
 description: WordPress Addons
 
+baseUrl: https://raw.githubusercontent.com/sych74/wordpress-simple-multiregion/master
+
 onInstall:
   installAddon:
   - id: wp-setup-base-url-addon
