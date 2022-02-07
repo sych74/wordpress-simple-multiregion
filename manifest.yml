@@ -95,7 +95,8 @@ onInstall:
   - initGlobals
   - setGlobals:
       domain: ${settings.envName}-1.${globals.domain-1}
-  - createEnvs    
+  - createEnvs
+  - installAdditionals
   - getEnvNodes
   - installReplications
   - installWordpress
@@ -152,7 +153,18 @@ actions:
           });
         }
         return { result: 0, onAfterReturn: { 'marketplace.jps.install': actions } };
-  
+
+  installAdditionals:
+    - script: |
+        var regions = '${settings.regions}'.split(','), actions = [];
+        for (var cluster = 1, n = regions.length + 1; cluster < n; cluster ++) {
+          actions.push({
+            jps: "/scripts/additionals.jps?_r=${fn.random}",
+            envName: "${settings.envName}-" + cluster,
+          });
+        }
+        return { result: 0, onAfterReturn: { 'install': actions } };
+
   getEnvNodes:
     - script: |
         var regions = '${settings.regions}'.split(','),
