@@ -7,19 +7,34 @@ onInstall:
 actions:
   prepareLEConfig:
     script: |
-      var firstEnvName = "${env.name}", secondEnvName = "", resp;
+      var firstEnvName = "${env.name}", secondEnvName = "",
+        USER = "root",
+        CP = "cp",
+        resp;
 
-      var cmd=`le_path="/var/lib/jelastic/keys/letsencrypt/"; \
+      var cmd = `le_path="/var/lib/jelastic/keys/letsencrypt/"; \
         le_custom="settings-custom"; \
         mkdir -p $le_path; \
         echo "deployHook=${baseUrl}/manageLEcerts.js\ndeployHookType=js" > ${le_path}${le_custom}`;
 
       secondEnvName = firstEnvName.slice(0, -1) + (firstEnvName.slice(-1) == 1 ? '2' : '1');
 
-      resp = api.environment.control.ExecCmdByGroup(firstEnvName, session, "cp", toJSON([{"command": cmd}]));
+      resp = api.environment.control.ExecCmdByGroup({
+        envName: firstEnvName, 
+        session: session,
+        nodeGroup: CP, 
+        commandList: toJSON([{"command": cmd}]),
+        userName: USER
+      });
       if (resp.result != 0) return resp;
 
-      return api.environment.control.ExecCmdByGroup(secondEnvName, session, "cp", toJSON([{"command": cmd}]));
+      return api.environment.control.ExecCmdByGroup({
+        envName: secondEnvName, 
+        session: session,
+        nodeGroup: CP, 
+        commandList: toJSON([{"command": cmd}]),
+        userName: USER
+      });
       
   installLEaddon:
     install: https://github.com/jelastic-jps/lets-encrypt/blob/master/manifest.jps?_r=${fn.random}
