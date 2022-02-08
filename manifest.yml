@@ -100,7 +100,7 @@ onInstall:
   - getEnvNodes
   - installReplications
   - installWordpress
-  - if (${settings.le_addon:false}): installLEaddon
+  - installLEaddon
   
 actions:
 
@@ -129,7 +129,6 @@ actions:
         glbs["regionsCount"] = regions.length;
         glbs["master_env_name"] = "${settings.envName}-1";
         return { result: 0, onAfterReturn: onAfterReturn };
-
   createEnvs:
     - script: |
         var regions = '${settings.regions}'.split(','), actions = [];
@@ -153,7 +152,6 @@ actions:
           });
         }
         return { result: 0, onAfterReturn: { 'marketplace.jps.install': actions } };
-
   installAdditionals:
     - script: |
         var regions = '${settings.regions}'.split(','), actions = [];
@@ -164,7 +162,6 @@ actions:
           });
         }
         return { result: 0, onAfterReturn: { 'install': actions } };
-
   getEnvNodes:
     - script: |
         var regions = '${settings.regions}'.split(','),
@@ -179,7 +176,6 @@ actions:
           }
         }
         return { result: 0, onAfterReturn: onAfterReturn };
-
   installReplications:
     - install:
       - jps: ${baseUrl}/scripts/primaryReplicationManager.jps
@@ -208,15 +204,15 @@ actions:
         wp_url: ${globals.protocol}://${globals.domain}
         version_wordpress: ${globals.version_wordpress}
         cluster: false
-        
+
   installLEaddon:
     install:
       jps: ${baseUrl}/scripts/installLE.jps
       envName: ${settings.envName}-1
       settings:
-        master_id_cp-1: ${globals.master_id_cp-1}
         domain: ${globals.domain}
         baseUrl: ${baseUrl}
+        le_addon: ${settings.le_addon:false}
   
 success:
   email: success/email/success-${globals.success}.md?_r=${fn.random}
