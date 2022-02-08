@@ -1,7 +1,7 @@
 type: update
-id: wordpress-addons
-name: WordPress Addons
-description: WordPress Addons
+id: wp-single-multiregions-addons
+name: WordPress Simple Multiregions Addons
+description: WordPress Simple Multiregions Addons
 
 mixins:
   - https://raw.githubusercontent.com/sych74/wordpress-simple-multiregion/master/configs/additionalGlobals.yaml
