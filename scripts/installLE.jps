@@ -6,12 +6,20 @@ onInstall:
 
 actions:
   prepareLEConfig:
-    cmd [${settings.master_id_cp-1}]: |-
-      le_path="/var/lib/jelastic/keys/letsencrypt/"
-      le_custom="settings-custom"
-      mkdir -p $le_path
-      echo $'deployHook=${baseUrl}/manageLEcerts.js\ndeployHookType=js' >> $le_path$le_custom
-    user: root
+    script: |
+      var firstEnvName = "${env.name}", secondEnvName = "", resp;
+
+      var cmd=`le_path="/var/lib/jelastic/keys/letsencrypt/"; \
+        le_custom="settings-custom"; \
+        mkdir -p $le_path; \
+        echo "deployHook=${baseUrl}/manageLEcerts.js\ndeployHookType=js" > ${le_path}${le_custom}`;
+
+      secondEnvName = firstEnvName.slice(0, -1) + (firstEnvName.slice(-1) == 1 ? '2' : '1');
+
+      resp = api.environment.control.ExecCmdByGroup(firstEnvName, session, "cp", toJSON([{"command": cmd}]));
+      if (resp.result != 0) return resp;
+
+      return api.environment.control.ExecCmdByGroup(secondEnvName, session, "cp", toJSON([{"command": cmd}]));
 
   installLEaddon:
     install: https://github.com/jelastic-jps/lets-encrypt/blob/master/manifest.jps?_r=${fn.random}
