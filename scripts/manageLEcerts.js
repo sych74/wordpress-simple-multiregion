@@ -6,7 +6,7 @@ var resp,
     chain    = readFile("/tmp/fullchain.url"),
     secondEnvName;
 
-secondEnvName = envName.slice(0, -1) + 2;
+secondEnvName = envName.slice(0, -1) + (envName.slice(-1) == 1 ? '2' : '1');
 
 if (cert_key.body && chain.body && cert.body) {
     resp = bindSSL();
