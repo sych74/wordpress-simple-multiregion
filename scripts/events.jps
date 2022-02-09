@@ -3,6 +3,9 @@ id: wordpress-simple-multiregion-events
 name: WordPress Simple MultiRegion Events
 description: WordPress Simple MultiRegion Events
 
+mixins:
+  - https://raw.githubusercontent.com/sych74/wordpress-simple-multiregion/master/configs/additionalGlobals.yaml
+
 onAfterInstallAddon [nodeGroup:cp, id:cdn]:
   - addFlag
   - setupCDN
