@@ -15,7 +15,7 @@ actions:
       var cmd = `le_path="/var/lib/jelastic/keys/letsencrypt/"; \
         le_custom="settings-custom"; \
         mkdir -p $le_path; \
-        echo "deployHook=${baseUrl}/manageLEcerts.js\ndeployHookType=js" > ${le_path}${le_custom}`;
+        echo "deployHook=${baseUrl}/manageLEcerts.js\ndeployHookType=js" >> ${le_path}${le_custom}`;
 
       secondEnvName = firstEnvName.slice(0, -1) + (firstEnvName.slice(-1) == 1 ? '2' : '1');
 
