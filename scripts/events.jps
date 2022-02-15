@@ -33,17 +33,21 @@ actions:
     - setGlobals:
         masterEnv: ${response.out}
     - if ('${globals.masterEnv}' == '${env.envName}'):
-      - script: return jelastic.dev.scripting.Eval("c05ffa5b45628a2a0c95467ebca8a0b4", session, "cdn.info", {partnerCode:1})
-      - cmd[${nodes.cp.master.id}]: |-
-          bash ~/bin/setupWP.sh --edgeportCDN true --CDN_URL ${env.envName}-${response.response.partnerCode}.cdn.jelastic.net
-    - else:
-      - install: https://raw.githubusercontent.com/edgeport/cdn/master/manifest.yml?_r=${fn.random}
-        nodeGroup: cp
-        skipEmail: true
-        settings:
-          note: ${settings.noteCDN:}
-          masterEnv: ${globals.masterEnv}
-  
+        - script: |
+            return { result : 0, onAfterReturn: { setGlobals: { cluster_envs_array: "${globals.clusterEnvs}".split(",") } }};
+        - forEach(clusternode:globals.cluster_envs_array):
+          - if ('${@clusternode}' == '${env.envName}'):
+            - script: return jelastic.dev.scripting.Eval("c05ffa5b45628a2a0c95467ebca8a0b4", session, "cdn.info", {partnerCode:1})
+            - cmd[${nodes.cp.master.id}]: |-
+                bash ~/bin/setupWP.sh --edgeportCDN true --CDN_URL ${env.envName}-${response.response.partnerCode}.cdn.jelastic.net
+          - else:
+            - install: https://raw.githubusercontent.com/edgeport/cdn/master/manifest.yml?_r=${fn.random}
+              nodeGroup: cp
+              skipEmail: true
+              envName: ${@clusternode}
+              settings:
+                note: ${settings.noteCDN:}
+                masterEnv: ${globals.masterEnv}
   deleteFlag:
     - script: |
         var envs = '${globals.clusterEnvs}'.split(','), api = [];
