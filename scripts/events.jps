@@ -9,6 +9,7 @@ mixins:
 onAfterInstallAddon [nodeGroup:cp, id:cdn]:
   - addFlag
   - setupCDN
+  - deleteFlag
   
 actions:
   addFlag:
