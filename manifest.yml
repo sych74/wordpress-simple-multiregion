@@ -100,7 +100,8 @@ onInstall:
   - getEnvNodes
   - installReplications
   - installWordpress
-  - installLEaddon
+  - if (${settings.le_addon:false}): installLEaddon
+  - if (${settings.cdn_addon:false}): installCDNaddon
   
 actions:
 
@@ -213,7 +214,15 @@ actions:
         domain: ${globals.domain}
         baseUrl: ${baseUrl}
         le_addon: ${settings.le_addon:false}
-  
+
+  installCDNaddon:
+    install:
+      jps: https://raw.githubusercontent.com/edgeport/cdn/master/manifest.yml?_r=${fn.random}
+      envName: ${settings.envName}-1
+      skipEmail: true
+      settings:
+        note: ${settings.noteCDN:}
+
 success:
   email: success/email/success-${globals.success}.md?_r=${fn.random}
   text: success/text/success-${globals.success}.md?_r=${fn.random}
