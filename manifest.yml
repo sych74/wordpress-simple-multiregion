@@ -1,9 +1,10 @@
 type: install
-name: Multi-Region WordPress Simple v1
-id: wordpress-simple-multiregion
+name: Multi-Region Standalone
+id: wordpress-multiregion-standalone
 categories:
   - apps/clusters
   - apps/content-management
+  - wordpress
 description: 
   text: Highly-available and reliable WordPress simple setup with automatic multi-region distribution. The package creates interconnected WordPress sub clusters across several regions ensuring the highest uptime and lowest latency.
   short: Enterprise-grade WordPress Simple with automatic distribution across several regions.
@@ -17,23 +18,6 @@ mixins:
 
 settings:
   fields:
-    - caption: Regions
-      type: regionlist
-      name: regions
-      disableInactive: true
-      selectFirstAvailable: false
-      multiSelect: true
-      min: 2
-      max: 2
-
-    - caption: Environment
-      type: envname
-      name: envName
-      dependsOn: region
-      randomName: true
-      showFullDomain: false
-      required: true
-
     - caption: Advanced Features
       type: displayfield
       name: displayfield
@@ -80,6 +64,23 @@ settings:
       name: message   
       value: 1
       markup:
+
+    - caption: Regions
+      type: regionlist
+      name: regions
+      disableInactive: true
+      selectFirstAvailable: false
+      multiSelect: true
+      min: 2
+      max: 2
+
+    - caption: Environment
+      type: envname
+      name: envName
+      dependsOn: region
+      randomName: true
+      showFullDomain: false
+      required: true
 
 globals:
   db_user: jelastic-${fn.random}
