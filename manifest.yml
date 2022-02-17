@@ -6,8 +6,8 @@ categories:
   - apps/content-management
   - wordpress
 description: 
-  text: Highly-available and reliable WordPress simple setup with automatic multi-region distribution. The package creates interconnected WordPress sub clusters across several regions ensuring the highest uptime and lowest latency.
-  short: Enterprise-grade WordPress Simple with automatic distribution across several regions.
+  text: /text/wordpress-multiregion-standalone.md
+  short: WordPress single instances in multi-region powered by LiteSpeed.
 logo: https://raw.githubusercontent.com/jelastic-jps/wordpress-multiregions/master/images/82dark-back-01.svg
 
 baseUrl: https://raw.githubusercontent.com/sych74/wordpress-simple-multiregion/master
