@@ -11,7 +11,7 @@ actions:
         USER = "root",
         CP = "cp",
         KEYS = "/var/lib/jelastic/keys/",
-        CLUSTER_CONFIG = "le-cluster-config",
+        CLUSTER_CONFIG = "clustering",
         resp;
 
       secondEnvName = firstEnvName.slice(0, -1) + (firstEnvName.slice(-1) == 1 ? '2' : '1');
