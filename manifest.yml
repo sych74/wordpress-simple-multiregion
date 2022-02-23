@@ -1,12 +1,13 @@
 type: install
-name: Multi-Region WordPress Simple v1
-id: wordpress-simple-multiregion
+name: Multi-Region Standalone
+id: wordpress-multiregion-standalone
 categories:
   - apps/clusters
   - apps/content-management
+  - wordpress
 description: 
-  text: Highly-available and reliable WordPress simple setup with automatic multi-region distribution. The package creates interconnected WordPress sub clusters across several regions ensuring the highest uptime and lowest latency.
-  short: Enterprise-grade WordPress Simple with automatic distribution across several regions.
+  text: /text/wordpress-multiregion-standalone.md
+  short: WordPress single instances in multi-region powered by LiteSpeed.
 logo: https://raw.githubusercontent.com/jelastic-jps/wordpress-multiregions/master/images/82dark-back-01.svg
 
 baseUrl: https://raw.githubusercontent.com/lazarenkoalexey/wordpress-simple-multiregion/WP-8-test
@@ -17,23 +18,6 @@ mixins:
 
 settings:
   fields:
-    - caption: Regions
-      type: regionlist
-      name: regions
-      disableInactive: true
-      selectFirstAvailable: false
-      multiSelect: true
-      min: 2
-      max: 2
-
-    - caption: Environment
-      type: envname
-      name: envName
-      dependsOn: region
-      randomName: true
-      showFullDomain: false
-      required: true
-
     - caption: Advanced Features
       type: displayfield
       name: displayfield
@@ -81,6 +65,23 @@ settings:
       value: 1
       markup:
 
+    - caption: Regions
+      type: regionlist
+      name: regions
+      disableInactive: true
+      selectFirstAvailable: false
+      multiSelect: true
+      min: 2
+      max: 2
+
+    - caption: Environment
+      type: envname
+      name: envName
+      dependsOn: region
+      randomName: true
+      showFullDomain: false
+      required: true
+
 globals:
   db_user: jelastic-${fn.random}
   db_pass: ${fn.password(10)}
@@ -100,7 +101,8 @@ onInstall:
   - getEnvNodes
   - installReplications
   - installWordpress
-  - installLEaddon
+  - if (${settings.le_addon:false}): installLEaddon
+  - if (${settings.cdn_addon:false}): installCDNaddon
   
 actions:
 
@@ -213,7 +215,15 @@ actions:
         domain: ${globals.domain}
         baseUrl: ${baseUrl}
         le_addon: ${settings.le_addon:false}
-  
+
+  installCDNaddon:
+    install:
+      jps: https://raw.githubusercontent.com/edgeport/cdn/master/manifest.yml?_r=${fn.random}
+      envName: ${settings.envName}-1
+      skipEmail: true
+      settings:
+        note: ${settings.noteCDN:}
+
 success:
   email: success/email/success-${globals.success}.md?_r=${fn.random}
   text: success/text/success-${globals.success}.md?_r=${fn.random}
