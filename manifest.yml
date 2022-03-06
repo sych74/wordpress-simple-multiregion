@@ -101,7 +101,7 @@ onInstall:
   - getEnvNodes
   - installReplications
   - installWordpress
-  - if (${settings.le_addon:false}): installLEaddon
+  - installLEaddon
   - if (${settings.cdn_addon:false}): installCDNaddon
   
 actions:
